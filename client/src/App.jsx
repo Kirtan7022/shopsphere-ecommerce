@@ -5,6 +5,9 @@ import { Toaster } from 'react-hot-toast';
 import MainLayout from './components/layout/MainLayout';
 import AuthLayout from './components/layout/AuthLayout';
 
+// Route Guards
+import { PrivateRoute, AdminRoute } from './components/common/ProtectedRoute';
+
 // Pages
 import Home from './pages/Home';
 import Products from './pages/Products';
@@ -17,6 +20,9 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
+
+// Admin Pages
+import AdminProducts from './pages/admin/AdminProducts';
 
 function App() {
   return (
@@ -52,8 +58,11 @@ function App() {
           <Route path="/products" element={<Products />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
+          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+
+          {/* Admin Routes */}
+          <Route path="/admin/products" element={<AdminRoute><AdminProducts /></AdminRoute>} />
         </Route>
 
         {/* 404 */}
