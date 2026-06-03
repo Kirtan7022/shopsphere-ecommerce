@@ -1,5 +1,7 @@
+import RegisterForm from '../components/auth/RegisterForm';
+
 const Register = () => {
-  return <div>Register Page</div>;
+  return <RegisterForm />;
 };
 
 export default Register;
