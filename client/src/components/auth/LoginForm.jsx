@@ -65,7 +65,9 @@ const LoginForm = () => {
             <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
             Remember me
           </label>
-          <a href="#" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">Forgot password?</a>
+          <Link to="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+            Forgot password?
+          </Link>
         </div>
 
         <Button type="submit" loading={loading} className="w-full">
