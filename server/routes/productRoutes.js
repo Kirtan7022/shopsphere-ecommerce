@@ -6,15 +6,23 @@ import {
   updateProduct,
   deleteProduct,
   createProductReview,
-  getCategories,
+  getTopProducts,
 } from '../controllers/productController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
+import { validate, createProductRules, reviewRules, mongoIdRule } from '../middleware/validateMiddleware.js';
 
 const router = express.Router();
 
-router.get('/categories', getCategories);
-router.route('/').get(getProducts).post(protect, admin, createProduct);
-router.route('/:id').get(getProductById).put(protect, admin, updateProduct).delete(protect, admin, deleteProduct);
-router.post('/:id/reviews', protect, createProductReview);
+router.get('/top', getTopProducts);
+router.route('/')
+  .get(getProducts)
+  .post(protect, admin, createProductRules, validate, createProduct);
+
+router.route('/:id')
+  .get(mongoIdRule, validate, getProductById)
+  .put(protect, admin, mongoIdRule, validate, updateProduct)
+  .delete(protect, admin, mongoIdRule, validate, deleteProduct);
+
+router.post('/:id/reviews', protect, mongoIdRule, reviewRules, validate, createProductReview);
 
 export default router;

@@ -4,13 +4,14 @@ class ApiFeatures {
     this.queryStr = queryStr;
   }
 
+  // Text search by keyword
   search() {
     const keyword = this.queryStr.keyword
       ? {
-          name: {
-            $regex: this.queryStr.keyword,
-            $options: 'i',
-          },
+          $or: [
+            { name: { $regex: this.queryStr.keyword, $options: 'i' } },
+            { description: { $regex: this.queryStr.keyword, $options: 'i' } },
+          ],
         }
       : {};
 
@@ -18,18 +19,21 @@ class ApiFeatures {
     return this;
   }
 
+  // Filter by fields (price[gte]=100&category=electronics)
   filter() {
     const queryCopy = { ...this.queryStr };
-    const removeFields = ['keyword', 'page', 'limit', 'sort'];
+    const removeFields = ['keyword', 'page', 'limit', 'sort', 'fields'];
     removeFields.forEach((key) => delete queryCopy[key]);
 
+    // Advanced filtering (gt, gte, lt, lte, in)
     let queryStr = JSON.stringify(queryCopy);
-    queryStr = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, (match) => `$${match}`);
+    queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, (match) => `$${match}`);
 
     this.query = this.query.find(JSON.parse(queryStr));
     return this;
   }
 
+  // Sort results
   sort() {
     if (this.queryStr.sort) {
       const sortBy = this.queryStr.sort.split(',').join(' ');
@@ -40,10 +44,25 @@ class ApiFeatures {
     return this;
   }
 
-  paginate(resultPerPage) {
-    const currentPage = Number(this.queryStr.page) || 1;
-    const skip = resultPerPage * (currentPage - 1);
-    this.query = this.query.limit(resultPerPage).skip(skip);
+  // Select specific fields
+  selectFields() {
+    if (this.queryStr.fields) {
+      const fields = this.queryStr.fields.split(',').join(' ');
+      this.query = this.query.select(fields);
+    } else {
+      this.query = this.query.select('-__v');
+    }
+    return this;
+  }
+
+  // Paginate
+  paginate(defaultLimit = 12) {
+    const page = Math.max(1, parseInt(this.queryStr.page) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(this.queryStr.limit) || defaultLimit));
+    const skip = (page - 1) * limit;
+
+    this.query = this.query.skip(skip).limit(limit);
+    this.pagination = { page, limit, skip };
     return this;
   }
 }
